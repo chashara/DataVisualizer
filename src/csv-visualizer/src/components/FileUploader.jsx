@@ -38,13 +38,15 @@ export default function FileUploader({ onDataLoaded }) {
 
   return (
     <div className="file-upload">
-      <label>
+      <input
+        id="file"
+        type="file"
+        accept=".csv,.json"
+        onChange={handleFileChange}
+        style={{ display: 'none' }}
+      />
+      <label htmlFor="file" className="upload-button">
         📁 Upload CSV or JSON
-        <input
-          type="file"
-          accept=".csv,.json"
-          onChange={handleFileChange}
-        />
       </label>
     </div>
   );

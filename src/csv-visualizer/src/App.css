@@ -9,19 +9,29 @@ body {
   min-height: 100vh;
 }
 
+content{
+  max-width: 700px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
-  padding: 30px;
-  background-color: #fff0f6;
+  padding-left: 680px;
+  padding-right:800px;
+  background-color: #eec8d7;
   min-height: 100vh;
 }
 
 h1.title {
   font-size: 2.5rem;
-  color: #ff69b4;
+  color: #670536;
   text-align: center;
   margin-bottom: 30px;
 }
@@ -31,7 +41,7 @@ h1.title {
 }
 
 .file-upload label {
-  background-color: #ff69b4;
+  background-color: #cf79a4;
   color: #fff;
   padding: 10px 20px;
   border-radius: 8px;
@@ -44,26 +54,58 @@ h1.title {
 }
 
 .controls {
+  margin-top: 20px;
   display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
   flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.controls label{
+  font-weight: 600;
+  color: #880e4f;
+  font-size: 1.1rem;
+  margin-right: 6px;
+}
+
+.controls select {
+  padding: 10px 16px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: none;
+  background-color: #333;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+  min-width: 180px;
+}
+
+.controls select:hover,
+.controls select:focus {
+  background-color: #555;
+  outline: none;
 }
 
 svg{
-  background-color: #fffafa;
-  border: 2px dashed #ffb6c1;
-  margin-bottom: 20px;
+    border: 2px dashed #d81b60;
+    background-color: #fdfcfc;
+    margin-top: 20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 700px;
+    height: 500px;
+
+
 }
 
 svg#chart {
-  border: 2px dashed #ffb6c1;
+  border: 2px dashed #cf79a4;
   border-radius: 12px;
   background-color: #fffafc;
   padding: 10px;
-  width: 100%;
+  width: 600px;
   height: 400px;
 }
 
@@ -74,11 +116,65 @@ svg#chart {
 }
 
 .download-buttons button {
-  background-color: #ff69b4;
+  background-color: #cf79a4;
   color: white;
   border: none;
   padding: 8px 14px;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
+}
+
+button{
+  background-color: #f06292;
+  border: none;
+  padding: 14px 28px;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(240, 98, 146, 0.2);
+}
+
+button:hover {
+  background-color: #d81b60;
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(216, 27, 96, 0.3);
+}
+
+button:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 4px rgba(216, 27, 96, 0.2);
+}
+
+.upload-button {
+  display: inline-block;
+  background-color: #f06292;
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-weight: bold;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(240, 98, 146, 0.2);
+  margin-bottom: 20px;
+}
+
+.upload-button:hover {
+  background-color: #d81b60;
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(216, 27, 96, 0.3);
+}
+
+.upload-button:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 4px rgba(216, 27, 96, 0.2);
+}
+
+
+input[type="file"] {
+  display: none;
 }

@@ -11,6 +11,10 @@ function App() {
   const [chartType, setChartType] = useState('bar');
   const [rawFile, setRawFile] = useState(null);
 
+  useEffect(() => {
+    renderChart();
+  }, [data, xKey, yKey, chartType]);
+
   const handleDataLoaded = (parsedData, file) => {
     if (!parsedData.length) return;
     setData(parsedData);
@@ -35,9 +39,7 @@ function App() {
   const downloadCleanedFile = () => {
     if (!data.length) return;
     const isJSON = rawFile?.name.endsWith('.json');
-    const content = isJSON
-      ? JSON.stringify(data, null, 2)
-      : convertToCSV(data);
+    const content = isJSON ? JSON.stringify(data, null, 2) : convertToCSV(data);
     const blob = new Blob([content], { type: 'text/plain' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -62,9 +64,15 @@ function App() {
     const svg = d3.select('#chart');
     svg.selectAll('*').remove();
 
-    const margin = { top: 20, right: 30, bottom: 50, left: 60 };
+    const margin = { top: 20, right: 30, bottom: 70, left: 70 };
     const width = 600 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
+
+    const g = svg
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`);
 
     const x = d3.scaleBand()
       .domain(data.map(d => d[xKey]))
@@ -73,11 +81,8 @@ function App() {
 
     const y = d3.scaleLinear()
       .domain([0, d3.max(data, d => Number(d[yKey]) || 0)])
+      .nice()
       .range([height, 0]);
-
-    const g = svg
-      .append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`);
 
     g.append('g')
       .attr('transform', `translate(0,${height})`)
@@ -88,6 +93,23 @@ function App() {
 
     g.append('g').call(d3.axisLeft(y));
 
+    g.append('text')
+      .attr('x', width / 2)
+      .attr('y', height + 60)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#880e4f')
+      .attr('font-weight', 'bold')
+      .text(xKey);
+
+    g.append('text')
+      .attr('transform', 'rotate(-90)')
+      .attr('x', -height / 2)
+      .attr('y', -50)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#880e4f')
+      .attr('font-weight', 'bold')
+      .text(yKey);
+
     if (chartType === 'bar') {
       g.selectAll('.bar')
         .data(data)
@@ -97,7 +119,7 @@ function App() {
         .attr('y', d => y(d[yKey]))
         .attr('width', x.bandwidth())
         .attr('height', d => height - y(d[yKey]))
-        .attr('fill', 'hotpink');
+        .attr('fill', '#ff69b4');
     }
 
     if (chartType === 'line') {
@@ -121,18 +143,13 @@ function App() {
         .attr('cx', d => x(d[xKey]) + x.bandwidth() / 2)
         .attr('cy', d => y(d[yKey]))
         .attr('r', 4)
-        .attr('fill', 'deeppink');
+        .attr('fill', '#e91e63');
     }
   };
 
-  // ✅ Automatically render chart when relevant data changes
-  useEffect(() => {
-    renderChart();
-  }, [xKey, yKey, chartType, data]);
-
   return (
     <div className="container">
-      <h1 className="title">📊 CSV & JSON Visualizer</h1>
+      <h1 className="title">📊 Big Data Visualizer</h1>
       <FileUploader onDataLoaded={handleDataLoaded} />
 
       {columns.length > 0 && (
@@ -162,7 +179,7 @@ function App() {
             </select>
           </div>
 
-          <svg id="chart" width={600} height={400}></svg>
+          <svg id="chart"></svg>
 
           <div className="download-buttons">
             <button onClick={downloadCleanedFile}>⬇️ Download Cleaned File</button>
