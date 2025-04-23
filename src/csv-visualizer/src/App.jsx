@@ -97,7 +97,7 @@ function App() {
       .attr('x', width / 2)
       .attr('y', height + 60)
       .attr('text-anchor', 'middle')
-      .attr('fill', '#880e4f')
+      .attr('fill', '#003366')
       .attr('font-weight', 'bold')
       .text(xKey);
 
@@ -106,7 +106,7 @@ function App() {
       .attr('x', -height / 2)
       .attr('y', -50)
       .attr('text-anchor', 'middle')
-      .attr('fill', '#880e4f')
+      .attr('fill', '#003366')
       .attr('font-weight', 'bold')
       .text(yKey);
 
@@ -119,7 +119,7 @@ function App() {
         .attr('y', d => y(d[yKey]))
         .attr('width', x.bandwidth())
         .attr('height', d => height - y(d[yKey]))
-        .attr('fill', '#ff69b4');
+        .attr('fill', '#003366');
     }
 
     if (chartType === 'line') {
@@ -130,7 +130,7 @@ function App() {
       g.append('path')
         .datum(data)
         .attr('fill', 'none')
-        .attr('stroke', '#ff69b4')
+        .attr('stroke', '#003366')
         .attr('stroke-width', 2)
         .attr('d', line);
     }
@@ -143,13 +143,13 @@ function App() {
         .attr('cx', d => x(d[xKey]) + x.bandwidth() / 2)
         .attr('cy', d => y(d[yKey]))
         .attr('r', 4)
-        .attr('fill', '#e91e63');
+        .attr('fill', '#003366');
     }
   };
 
   return (
     <div className="container">
-      <h1 className="title">📊 Big Data Visualizer</h1>
+      <h1 className="title">Big Data Visualizer</h1>
       <FileUploader onDataLoaded={handleDataLoaded} />
 
       {columns.length > 0 && (
@@ -182,8 +182,8 @@ function App() {
           <svg id="chart"></svg>
 
           <div className="download-buttons">
-            <button onClick={downloadCleanedFile}>⬇️ Download Cleaned File</button>
-            <button onClick={downloadChart}>🖼️ Download Chart</button>
+            <button onClick={downloadCleanedFile}>Download Cleaned File</button>
+            <button onClick={downloadChart}>Download Chart</button>
           </div>
         </>
       )}
