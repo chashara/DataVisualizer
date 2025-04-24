@@ -1,10 +1,11 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import shutil
 import os
 import json
 from spark_cleaner import clean_csv, clean_json
+import pandas as pd
 
 app = FastAPI()
 
@@ -42,3 +43,26 @@ async def upload_csv(file: UploadFile = File(...)):
             return FileResponse(output_path, media_type='text/csv', filename="cleaned_output.csv")
 
     return {"error": "Cleaned file not found"}
+
+@app.post("/descriptive-stats")
+async def descriptive_stats(request: Request):
+    body = await request.json()
+    data = body.get("data")
+
+    if not data:
+        return {"error": "No data provided."}
+
+    try:
+        df = pd.DataFrame(data)
+
+        numeric_df = df.select_dtypes(include='number')
+        stats = {
+            "mean": numeric_df.mean().to_dict(),
+            "median": numeric_df.median().to_dict(),
+            "std_dev": numeric_df.std().to_dict(),
+            "correlation": numeric_df.corr().to_dict()
+        }
+
+        return JSONResponse(content=stats)
+    except Exception as e:
+        return {"error": str(e)}

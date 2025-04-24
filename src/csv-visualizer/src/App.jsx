@@ -11,6 +11,8 @@ function App() {
   const [chartType, setChartType] = useState('bar');
   const [rawFile, setRawFile] = useState(null);
   const [apiUrl, setApiUrl] = useState('');
+  const [stats, setStats] = useState(null);
+
 
   useEffect(() => {
     renderChart();
@@ -81,6 +83,30 @@ function App() {
     link.download = 'chart.svg';
     link.click();
   };
+
+  const fetchStats = async () => {
+    if (!data.length) return alert("No data available.");
+
+    try {
+      const res = await fetch("http://127.0.0.1:8000/descriptive-stats", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data })
+      });
+
+      const result = await res.json();
+      if (result.error) {
+        alert(result.error);
+        return;
+      }
+
+      setStats(result);
+    } catch (err) {
+      console.error("Error fetching stats:", err);
+      alert("Failed to load statistics.");
+    }
+  };
+
 
   const renderChart = () => {
     if (!xKey || !yKey || data.length === 0) return;
@@ -220,11 +246,70 @@ function App() {
           <div className="download-buttons">
             <button onClick={downloadCleanedFile}>Download Cleaned File</button>
             <button onClick={downloadChart}>Download Chart</button>
+            <button onClick={fetchStats}>View Stats</button>
+
           </div>
-        </>
-      )}
-    </div>
-  );
+          {stats && (
+  <div className="stats-box">
+    <h2>📈 Descriptive Statistics</h2>
+    <table className="stats-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          {Object.keys(stats.mean).map((key) => (
+            <th key={key}>{key}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Mean</td>
+          {Object.values(stats.mean).map((val, i) => (
+            <td key={i}>{val}</td>
+          ))}
+        </tr>
+        <tr>
+          <td>Median</td>
+          {Object.values(stats.median).map((val, i) => (
+            <td key={i}>{val}</td>
+          ))}
+        </tr>
+        <tr>
+          <td>Standard Deviation</td>
+          {Object.values(stats.std_dev).map((val, i) => (
+            <td key={i}>{val}</td>
+          ))}
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 style={{ marginTop: '20px' }}>📊 Correlation Matrix</h3>
+    <table className="stats-table">
+      <thead>
+        <tr>
+          <th></th>
+          {Object.keys(stats.correlation).map((key) => (
+            <th key={key}>{key}</th>
+          ))}
+          </tr>
+        </thead>
+        <tbody>
+          {Object.entries(stats.correlation).map(([rowKey, rowVals]) => (
+            <tr key={rowKey}>
+              <td>{rowKey}</td>
+              {Object.keys(stats.correlation).map((colKey) => (
+                <td key={colKey}>{rowVals[colKey]?.toFixed(2) ?? '-'}</td>
+              ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </>
+)}
+</div>
+);
 }
 
 export default App;
