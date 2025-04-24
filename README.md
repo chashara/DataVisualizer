@@ -4,35 +4,35 @@ Features:
 
  * Data Upload: Import CSV or JSON files for visualization and analysis.
  
- API connectivity: Retrieve and visualize data dicrectly from external APIs.
+ * API connectivity: Retrieve and visualize data dicrectly from external APIs.
  
- Dynamic Charts: Generate car, line or scatter charts using D3.js.
+ * Dynamic Charts: Generate car, line or scatter charts using D3.js.
  
- Stastical Insights: Access essential statistics such as Mean, Median, Standard Deviation and Correlation Matrix.
+ * Stastical Insights: Access essential statistics such as Mean, Median, Standard Deviation and Correlation Matrix.
  
- Export Capabilities: Can download the cleaned data, Stastical Report and the Charts.
+ * Export Capabilities: Can download the cleaned data, Stastical Report and the Charts.
  
- Chart Configuration: Select X and Y axes, and chart types from the dropdown menus.
+ * Chart Configuration: Select X and Y axes, and chart types from the dropdown menus.
 
 Technologies Utilized:
 
 *Frontend*
 
- React + Vite
+ * React + Vite
  
- D3.js
+ * D3.js
  
- jsPDF + AutoTable
+ * jsPDF + AutoTable
  
- PapaParse
+ * PapaParse
 
 *Backend*
 
-FastAPI
+* FastAPI
 
-PySpark for data cleaning and stats
+* PySpark for data cleaning and stats
 
-CORS Middleware
+* CORS Middleware
 
 Directory Structure:
 
@@ -64,9 +64,9 @@ npm run dev
 
 API Endpoints:
 
-POST /upload-csv : Upload CSV or JSON file for cleaning
+* POST /upload-csv : Upload CSV or JSON file for cleaning
 
-POST /descriptive-stats : Gets stats for uploaded/parsed data
+* POST /descriptive-stats : Gets stats for uploaded/parsed data
 
 Author: Chashara Devindy Bandaranayake  
 
