@@ -20,7 +20,6 @@ export default function FileUploader({ onDataLoaded }) {
       const blob = await response.blob();
       const text = await blob.text();
 
-      // ✅ Use the uploaded file extension to decide parsing logic
       if (file.name.endsWith('.json')) {
         try {
           const jsonData = JSON.parse(text);
@@ -30,11 +29,21 @@ export default function FileUploader({ onDataLoaded }) {
           alert("The uploaded JSON file is invalid.");
         }
       } else {
-        // ✅ Parse CSV
+        // ✅ Parse and convert numeric strings to actual numbers
         Papa.parse(text, {
           header: true,
           skipEmptyLines: true,
-          complete: (results) => onDataLoaded(results.data, file),
+          complete: (results) => {
+            const parsed = results.data.map(row => {
+              const cleaned = {};
+              for (const key in row) {
+                const val = row[key];
+                cleaned[key] = isNaN(val) || val.trim() === '' ? val : Number(val);
+              }
+              return cleaned;
+            });
+            onDataLoaded(parsed, file);
+          }
         });
       }
 
@@ -54,7 +63,7 @@ export default function FileUploader({ onDataLoaded }) {
         style={{ display: 'none' }}
       />
       <label htmlFor="file" className="upload-button">
-         Upload CSV or JSON
+        Upload CSV or JSON
       </label>
     </div>
   );

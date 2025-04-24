@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import FileUploader from './components/FileUploader';
 import * as d3 from 'd3';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
 import './App.css';
+
+
+
+
 
 function App() {
   const [data, setData] = useState([]);
@@ -105,6 +112,49 @@ function App() {
       console.error("Error fetching stats:", err);
       alert("Failed to load statistics.");
     }
+  };
+  const downloadStatsPDF = () => {
+    if (!stats) return alert("No statistics to download.");
+
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("Descriptive Statistics Report", 14, 20);
+
+
+    const metricRows = ['Mean', 'Median', 'Standard Deviation'];
+    const dataRows = [
+      Object.values(stats.mean),
+      Object.values(stats.median),
+      Object.values(stats.std_dev)
+    ];
+    const statsTable = [
+      ['Metric', ...Object.keys(stats.mean)],
+      ...metricRows.map((metric, i) => [metric, ...dataRows[i]])
+    ];
+
+
+    autoTable(doc, {
+      head: [statsTable[0]],
+      body: statsTable.slice(1),
+      startY: 30,
+      styles: { halign: 'center' },
+      headStyles: { fillColor: [0, 51, 102] },
+    });
+
+    const correlationMatrix = Object.entries(stats.correlation).map(
+      ([rowKey, row]) => [rowKey, ...Object.values(row).map(val => val?.toFixed(2) ?? '-')]
+    );
+
+
+    autoTable(doc, {
+      head: [['', ...Object.keys(stats.correlation)]],
+      body: correlationMatrix,
+      startY: doc.lastAutoTable.finalY + 20,
+      styles: { halign: 'center' },
+      headStyles: { fillColor: [0, 51, 102] },
+    });
+
+    doc.save("descriptive_statistics.pdf");
   };
 
 
@@ -247,6 +297,9 @@ function App() {
             <button onClick={downloadCleanedFile}>Download Cleaned File</button>
             <button onClick={downloadChart}>Download Chart</button>
             <button onClick={fetchStats}>View Stats</button>
+            {stats && (
+    <button onClick={downloadStatsPDF}>📥 Download Stats (PDF)</button>
+  )}
 
           </div>
           {stats && (
