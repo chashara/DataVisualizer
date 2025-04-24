@@ -2,7 +2,7 @@ A Full Stack web application for visualizing and analyzing structured data from 
 
 Features:
 
- *Data Upload: Import CSV or JSON files for visualization and analysis.
+ * Data Upload: Import CSV or JSON files for visualization and analysis.
  
  API connectivity: Retrieve and visualize data dicrectly from external APIs.
  
