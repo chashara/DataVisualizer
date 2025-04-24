@@ -1,6 +1,39 @@
-Pregnancies,Glucose,BloodPressure,SkinThickness,Insulin,BMI,DiabetesPedigreeFunction,Age,Outcome
-8,183,64,0,0,23.3,0.672,32,1
-1,85,66,29,0,26.6,0.351,31,0
-6,148,72,35,0,33.6,0.627,50,1
-1,89,66,23,94,28.1,0.167,21,0
-0,137,40,35,168,43.1,2.288,33,1
+[
+}
+"\"PerformanceScore\": 9.1"
+"\"Age\": 34"
+"\"PerformanceScore\": 8.5"
+"\"EmployeeID\": 1"
+]
+"\"EmployeeID\": 5"
+"\"ExperienceYears\": 7"
+"\"Department\": \"Engineering\""
+"\"Name\": \"Bob\""
+"\"Department\": \"Marketing\""
+"\"PerformanceScore\": 6.9"
+"\"Age\": 29"
+"\"Name\": \"Ethan\""
+"\"PerformanceScore\": 7.3"
+"\"ExperienceYears\": 9"
+"\"Department\": \"Support\""
+"\"ExperienceYears\": 5"
+"\"ExperienceYears\": 3"
+"\"Department\": \"Finance\""
+"\"Name\": \"Diana\""
+"\"Age\": 38"
+"\"EmployeeID\": 3"
+"\"Salary\": 62000"
+"\"Salary\": 75000"
+"\"EmployeeID\": 4"
+"\"ExperienceYears\": 10"
+"\"PerformanceScore\": 8.8"
+{
+"\"EmployeeID\": 2"
+"\"Age\": 41"
+"\"Age\": 26"
+"\"Salary\": 54000"
+"\"Salary\": 87000"
+"\"Name\": \"Alice\""
+"\"Department\": \"HR\""
+"\"Salary\": 68000"
+"\"Name\": \"Charlie\""
