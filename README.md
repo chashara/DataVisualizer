@@ -1,25 +1,25 @@
 A Full Stack web application for visualizing and analyzing structured data from CSV, JSON files, or APIS. The application offers various types of charts, descriptive statistics, and export functionalities to improve data comprehension for users.
 
 Features:
-> Data Upload: Import CSV or JSON files for visualization and analysis.
-> API connectivity: Retrieve and visualize data dicrectly from external APIs.
-> Dynamic Charts: Generate car, line or scatter charts using D3.js.
-> Stastical Insights: Access essential statistics such as Mean, Median, Standard Deviation and Correlation Matrix.
-> Export Capabilities: Can download the cleaned data, Stastical Report and the Charts.
-> Chart Configuration: Select X and Y axes, and chart types from the dropdown menus.
+ Data Upload: Import CSV or JSON files for visualization and analysis.
+ API connectivity: Retrieve and visualize data dicrectly from external APIs.
+ Dynamic Charts: Generate car, line or scatter charts using D3.js.
+ Stastical Insights: Access essential statistics such as Mean, Median, Standard Deviation and Correlation Matrix.
+ Export Capabilities: Can download the cleaned data, Stastical Report and the Charts.
+ Chart Configuration: Select X and Y axes, and chart types from the dropdown menus.
 
 Technologies Utilized:
 
 *Frontend*
-> React + Vite
-> D3.js
-> jsPDF + AutoTable
-> PapaParse
+ React + Vite
+ D3.js
+ jsPDF + AutoTable
+ PapaParse
 
 *Backend*
->FastAPI
->PySpark for data cleaning and stats
->CORS Middleware
+FastAPI
+PySpark for data cleaning and stats
+CORS Middleware
 
 Directory Structure:
 
@@ -46,8 +46,8 @@ npm run dev
 
 API Endpoints:
 
->POST /upload-csv : Upload CSV or JSON file for cleaning
->POST /descriptive-stats : Gets stats for uploaded/parsed data
+POST /upload-csv : Upload CSV or JSON file for cleaning
+POST /descriptive-stats : Gets stats for uploaded/parsed data
 
 Author: Chashara Devindy Bandaranayake  
 Project for Bachelors Thesis 
