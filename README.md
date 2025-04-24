@@ -43,8 +43,11 @@ Getting Started:
 *Install Requirements*
 
 cd backend
+
 python -m venv venv
+
 source venv/bin/activate
+
 pip install -r requirements.txt
 
 *Run the Backend*
@@ -54,14 +57,18 @@ uvicorn main:app --reload
 *Run the Frontend*
 
 cd frontend
+
 npm install
+
 npm run dev
 
 API Endpoints:
 
 POST /upload-csv : Upload CSV or JSON file for cleaning
+
 POST /descriptive-stats : Gets stats for uploaded/parsed data
 
 Author: Chashara Devindy Bandaranayake  
+
 Project for Bachelors Thesis 
 
