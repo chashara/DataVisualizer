@@ -2,7 +2,9 @@ A Full Stack web application for visualizing and analyzing structured data from 
 
 Features:
  Data Upload: Import CSV or JSON files for visualization and analysis.
+ 
  API connectivity: Retrieve and visualize data dicrectly from external APIs.
+ 
  Dynamic Charts: Generate car, line or scatter charts using D3.js.
  Stastical Insights: Access essential statistics such as Mean, Median, Standard Deviation and Correlation Matrix.
  Export Capabilities: Can download the cleaned data, Stastical Report and the Charts.
