@@ -10,6 +10,7 @@ function App() {
   const [yKey, setYKey] = useState('');
   const [chartType, setChartType] = useState('bar');
   const [rawFile, setRawFile] = useState(null);
+  const [apiUrl, setApiUrl] = useState('');
 
   useEffect(() => {
     renderChart();
@@ -22,6 +23,29 @@ function App() {
     setXKey('');
     setYKey('');
     setRawFile(file);
+  };
+
+  const handleApiFetch = async () => {
+    if (!apiUrl) return alert('Please enter a valid API URL.');
+    try {
+      const res = await fetch(apiUrl);
+      if (!res.ok) throw new Error('Failed to fetch data from API.');
+      const jsonData = await res.json();
+
+      if (!Array.isArray(jsonData)) {
+        alert("Expected an array of objects from the API.");
+        return;
+      }
+
+      setRawFile({ name: 'api.json' });
+      setData(jsonData);
+      setColumns(Object.keys(jsonData[0]));
+      setXKey('');
+      setYKey('');
+    } catch (error) {
+      console.error(error);
+      alert('Error fetching or parsing API data.');
+    }
   };
 
   const handleSettingsChange = (key, value) => {
@@ -151,6 +175,18 @@ function App() {
     <div className="container">
       <h1 className="title">Big Data Visualizer</h1>
       <FileUploader onDataLoaded={handleDataLoaded} />
+
+
+      <div className="api-fetch">
+        <input
+          type="text"
+          placeholder="Paste API URL..."
+          value={apiUrl}
+          onChange={(e) => setApiUrl(e.target.value)}
+          className="api-input"
+        />
+        <button onClick={handleApiFetch}>Fetch from API</button>
+      </div>
 
       {columns.length > 0 && (
         <>

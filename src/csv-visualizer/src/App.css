@@ -178,3 +178,20 @@ svg#chart {
 input[type="file"] {
   display: none;
 }
+
+.api-fetch {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.api-input {
+  padding: 10px 14px;
+  width: 60%;
+  max-width: 400px;
+  border: 2px solid #003366;
+  border-radius: 8px;
+  font-size: 1rem;
+}
