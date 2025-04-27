@@ -41,21 +41,32 @@ function App() {
       if (!res.ok) throw new Error('Failed to fetch data from API.');
       const jsonData = await res.json();
 
-      if (!Array.isArray(jsonData)) {
-        alert("Expected an array of objects from the API.");
-        return;
-      }
+      if (Array.isArray(jsonData)) {
+        setRawFile({ name: 'api.json' });
+        setData(jsonData);
+        setColumns(Object.keys(jsonData[0]));
+        setXKey('');
+        setYKey('');
+      } else if (jsonData.hourly && jsonData.hourly.time && jsonData.hourly.temperature_2m) {
 
-      setRawFile({ name: 'api.json' });
-      setData(jsonData);
-      setColumns(Object.keys(jsonData[0]));
-      setXKey('');
-      setYKey('');
+        const transformed = jsonData.hourly.time.map((time, index) => ({
+          time,
+          temperature: jsonData.hourly.temperature_2m[index]
+        }));
+        setRawFile({ name: 'api.json' });
+        setData(transformed);
+        setColumns(Object.keys(transformed[0]));
+        setXKey('');
+        setYKey('');
+      } else {
+        alert("Expected an array of objects from the API.");
+      }
     } catch (error) {
       console.error(error);
       alert('Error fetching or parsing API data.');
     }
   };
+
 
   const handleSettingsChange = (key, value) => {
     if (key === 'x') setXKey(value);

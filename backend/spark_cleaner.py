@@ -7,7 +7,7 @@ def clean_csv(input_path: str, output_path: str):
     df_cleaned = df.dropna().dropDuplicates()
     df_cleaned.coalesce(1).write.csv(output_path, header=True, mode='overwrite')
 
-    spark.stop()  # Optional if you're running in short-lived scripts
+    spark.stop()
 
 
 def clean_json(input_path: str):

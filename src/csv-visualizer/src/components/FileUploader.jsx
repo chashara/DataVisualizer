@@ -29,7 +29,7 @@ export default function FileUploader({ onDataLoaded }) {
           alert("The uploaded JSON file is invalid.");
         }
       } else {
-        // ✅ Parse and convert numeric strings to actual numbers
+
         Papa.parse(text, {
           header: true,
           skipEmptyLines: true,
