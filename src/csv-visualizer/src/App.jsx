@@ -166,6 +166,73 @@ function App() {
     img.src = url;
   };
 
+  const downloadChartAsJPEG = () => {
+    const svgElement = document.getElementById('chart');
+    if (!svgElement) {
+      alert('No chart to download.');
+      return;
+    }
+
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(svgElement);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+
+    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.fillStyle = "white"; // white background for JPEG
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      URL.revokeObjectURL(url);
+
+      const jpegLink = document.createElement('a');
+      jpegLink.download = 'chart.jpeg';
+      jpegLink.href = canvas.toDataURL('image/jpeg', 1.0); // 100% quality
+      jpegLink.click();
+    };
+    img.src = url;
+  };
+
+  const downloadChartAsPDF = () => {
+    const svgElement = document.getElementById('chart');
+    if (!svgElement) {
+      alert('No chart to download.');
+      return;
+    }
+
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(svgElement);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+
+    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.fillStyle = "white"; // white background
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      URL.revokeObjectURL(url);
+
+      const imgData = canvas.toDataURL('image/jpeg', 1.0);
+      const pdf = new jsPDF({
+        orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+        unit: 'px',
+        format: [canvas.width, canvas.height],
+      });
+      pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
+      pdf.save('chart.pdf');
+    };
+    img.src = url;
+  };
 
   const renderChart = () => {
     if (!xKey || !yKey || data.length === 0) return;
@@ -335,7 +402,10 @@ g.append('text')
             <button onClick={fetchStats}>View Stats</button>
             <button onClick={downloadStatsPDF}>Download Stats PDF</button>
             <button onClick={downloadChartAsPNG}>Download Chart as PNG</button>
-            <button onClick={downloadCleanedCSV}>Download Cleaned CSV</button>
+            <button onClick={downloadChartAsJPEG}>Download Chart as JPEG</button>
+            <button onClick={downloadChartAsPDF}>Download Chart as PDF</button>
+            <button onClick={downloadCleanedCSV}>Download Cleaned Data</button>
+
 
 
           </div>
