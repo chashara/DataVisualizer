@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import FileUploader from './components/FileUploader';
 import * as d3 from 'd3';
+import { zoom, select } from 'd3';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-
 import './App.css';
-
-
-
-
 
 function App() {
   const [data, setData] = useState([]);
@@ -19,11 +15,11 @@ function App() {
   const [rawFile, setRawFile] = useState(null);
   const [apiUrl, setApiUrl] = useState('');
   const [stats, setStats] = useState(null);
-
+  const [maxItems, setMaxItems] = useState(50);
 
   useEffect(() => {
     renderChart();
-  }, [data, xKey, yKey, chartType]);
+  }, [data, xKey, yKey, chartType, maxItems]);
 
   const handleDataLoaded = (parsedData, file) => {
     if (!parsedData.length) return;
@@ -32,6 +28,7 @@ function App() {
     setXKey('');
     setYKey('');
     setRawFile(file);
+    setStats(null);
   };
 
   const handleApiFetch = async () => {
@@ -40,109 +37,80 @@ function App() {
       const res = await fetch(apiUrl);
       if (!res.ok) throw new Error('Failed to fetch data from API.');
       const jsonData = await res.json();
-
-      if (Array.isArray(jsonData)) {
-        setRawFile({ name: 'api.json' });
-        setData(jsonData);
-        setColumns(Object.keys(jsonData[0]));
-        setXKey('');
-        setYKey('');
-      } else if (jsonData.hourly && jsonData.hourly.time && jsonData.hourly.temperature_2m) {
-
-        const transformed = jsonData.hourly.time.map((time, index) => ({
-          time,
-          temperature: jsonData.hourly.temperature_2m[index]
-        }));
-        setRawFile({ name: 'api.json' });
-        setData(transformed);
-        setColumns(Object.keys(transformed[0]));
-        setXKey('');
-        setYKey('');
-      } else {
-        alert("Expected an array of objects from the API.");
+      if (!Array.isArray(jsonData)) {
+        alert('Expected an array of objects from the API.');
+        return;
       }
+      setRawFile({ name: 'api.json' });
+      setData(jsonData);
+      setColumns(Object.keys(jsonData[0]));
+      setXKey('');
+      setYKey('');
+      setStats(null);
     } catch (error) {
       console.error(error);
       alert('Error fetching or parsing API data.');
     }
   };
 
-
-  const handleSettingsChange = (key, value) => {
-    if (key === 'x') setXKey(value);
-    if (key === 'y') setYKey(value);
-    if (key === 'type') setChartType(value);
-  };
-
-  const convertToCSV = (arr) => {
-    const keys = Object.keys(arr[0]);
-    const rows = arr.map(row => keys.map(k => row[k]).join(','));
-    return [keys.join(','), ...rows].join('\n');
-  };
-
-  const downloadCleanedFile = () => {
-    if (!data.length) return;
-    const isJSON = rawFile?.name.endsWith('.json');
-    const content = isJSON ? JSON.stringify(data, null, 2) : convertToCSV(data);
-    const blob = new Blob([content], { type: 'text/plain' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = isJSON ? 'cleaned.json' : 'cleaned.csv';
-    link.click();
-  };
-
-  const downloadChart = () => {
-    const svg = document.getElementById('chart');
-    const serializer = new XMLSerializer();
-    const svgBlob = new Blob([serializer.serializeToString(svg)], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(svgBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'chart.svg';
-    link.click();
-  };
-
   const fetchStats = async () => {
-    if (!data.length) return alert("No data available.");
-
+    if (!data.length) return alert('No data available.');
     try {
-      const res = await fetch("http://127.0.0.1:8000/descriptive-stats", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data })
+      const res = await fetch('http://127.0.0.1:8000/descriptive-stats', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data }),
       });
-
       const result = await res.json();
       if (result.error) {
         alert(result.error);
         return;
       }
-
       setStats(result);
     } catch (err) {
-      console.error("Error fetching stats:", err);
-      alert("Failed to load statistics.");
+      console.error('Error fetching stats:', err);
+      alert('Failed to load statistics.');
     }
   };
+
+  const downloadCleanedCSV = () => {
+    if (!data.length) {
+      alert('No data to download!');
+      return;
+    }
+
+    const csvContent = [
+      Object.keys(data[0]).join(','),
+      ...data.map(row => Object.values(row).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'cleaned_data.csv';
+    link.click();
+  };
+
+
   const downloadStatsPDF = () => {
-    if (!stats) return alert("No statistics to download.");
+    if (!stats) return alert('No statistics to download.');
 
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text("Descriptive Statistics Report", 14, 20);
-
+    doc.text('Descriptive Statistics Report', 14, 20);
 
     const metricRows = ['Mean', 'Median', 'Standard Deviation'];
     const dataRows = [
       Object.values(stats.mean),
       Object.values(stats.median),
-      Object.values(stats.std_dev)
+      Object.values(stats.std_dev),
     ];
     const statsTable = [
       ['Metric', ...Object.keys(stats.mean)],
-      ...metricRows.map((metric, i) => [metric, ...dataRows[i]])
+      ...metricRows.map((metric, i) => [metric, ...dataRows[i]]),
     ];
-
 
     autoTable(doc, {
       head: [statsTable[0]],
@@ -153,29 +121,60 @@ function App() {
     });
 
     const correlationMatrix = Object.entries(stats.correlation).map(
-      ([rowKey, row]) => [rowKey, ...Object.values(row).map(val => val?.toFixed(2) ?? '-')]
+      ([rowKey, row]) => [rowKey, ...Object.values(row).map((val) => val?.toFixed(2) ?? '-')]
     );
 
-
+    doc.text('Correlation Matrix', 14, doc.lastAutoTable.finalY + 20);
     autoTable(doc, {
       head: [['', ...Object.keys(stats.correlation)]],
       body: correlationMatrix,
-      startY: doc.lastAutoTable.finalY + 20,
+      startY: doc.lastAutoTable.finalY + 30,
       styles: { halign: 'center' },
       headStyles: { fillColor: [0, 51, 102] },
     });
 
-    doc.save("descriptive_statistics.pdf");
+    doc.save('descriptive_statistics.pdf');
+  };
+
+  const downloadChartAsPNG = () => {
+    const svgElement = document.getElementById('chart');
+    if (!svgElement) {
+      alert('No chart to download.');
+      return;
+    }
+
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(svgElement);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+
+    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+      URL.revokeObjectURL(url);
+
+      const pngLink = document.createElement('a');
+      pngLink.download = 'chart.png';
+      pngLink.href = canvas.toDataURL('image/png');
+      pngLink.click();
+    };
+    img.src = url;
   };
 
 
   const renderChart = () => {
     if (!xKey || !yKey || data.length === 0) return;
 
-    const svg = d3.select('#chart');
+    const filteredData = data.slice(0, maxItems);
+    const svg = select('#chart');
     svg.selectAll('*').remove();
 
-    const margin = { top: 20, right: 30, bottom: 70, left: 70 };
+    const margin = { top: 20, right: 30, bottom: 100, left: 70 };
     const width = 600 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
@@ -186,12 +185,12 @@ function App() {
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
     const x = d3.scaleBand()
-      .domain(data.map(d => d[xKey]))
+      .domain(filteredData.map((d) => typeof d[xKey] === 'object' ? JSON.stringify(d[xKey]) : d[xKey]))
       .range([0, width])
       .padding(0.2);
 
     const y = d3.scaleLinear()
-      .domain([0, d3.max(data, d => Number(d[yKey]) || 0)])
+      .domain([0, d3.max(filteredData, (d) => Number(d[yKey]) || 0)])
       .nice()
       .range([height, 0]);
 
@@ -204,42 +203,47 @@ function App() {
 
     g.append('g').call(d3.axisLeft(y));
 
-    g.append('text')
-      .attr('x', width / 2)
-      .attr('y', height + 60)
-      .attr('text-anchor', 'middle')
-      .attr('fill', '#003366')
-      .attr('font-weight', 'bold')
-      .text(xKey);
 
-    g.append('text')
-      .attr('transform', 'rotate(-90)')
-      .attr('x', -height / 2)
-      .attr('y', -50)
-      .attr('text-anchor', 'middle')
-      .attr('fill', '#003366')
-      .attr('font-weight', 'bold')
-      .text(yKey);
+g.append('text')
+.attr('text-anchor', 'middle')
+.attr('x', width / 2)
+.attr('y', height + 60)
+.style('font-size', '14px')
+.style('fill', '#003366')
+.text(xKey);
+
+
+g.append('text')
+.attr('text-anchor', 'middle')
+.attr('transform', 'rotate(-90)')
+.attr('x', -height / 2)
+.attr('y', -50)
+.style('font-size', '14px')
+.style('fill', '#003366')
+.text(yKey);
+
 
     if (chartType === 'bar') {
       g.selectAll('.bar')
-        .data(data)
+        .data(filteredData)
         .enter()
         .append('rect')
-        .attr('x', d => x(d[xKey]))
-        .attr('y', d => y(d[yKey]))
+        .attr('x', (d) => x(d[xKey]))
+        .attr('y', (d) => y(d[yKey]))
         .attr('width', x.bandwidth())
-        .attr('height', d => height - y(d[yKey]))
-        .attr('fill', '#003366');
+        .attr('height', (d) => height - y(d[yKey]))
+        .attr('fill', '#003366')
+        .append('title')
+        .text((d) => `${xKey}: ${typeof d[xKey] === 'object' ? JSON.stringify(d[xKey]) : d[xKey]}\n${yKey}: ${d[yKey]}`);
     }
 
     if (chartType === 'line') {
       const line = d3.line()
-        .x(d => x(d[xKey]) + x.bandwidth() / 2)
-        .y(d => y(d[yKey]));
+        .x((d) => x(d[xKey]) + x.bandwidth() / 2)
+        .y((d) => y(d[yKey]));
 
       g.append('path')
-        .datum(data)
+        .datum(filteredData)
         .attr('fill', 'none')
         .attr('stroke', '#003366')
         .attr('stroke-width', 2)
@@ -248,21 +252,31 @@ function App() {
 
     if (chartType === 'scatter') {
       g.selectAll('circle')
-        .data(data)
+        .data(filteredData)
         .enter()
         .append('circle')
-        .attr('cx', d => x(d[xKey]) + x.bandwidth() / 2)
-        .attr('cy', d => y(d[yKey]))
+        .attr('cx', (d) => x(d[xKey]) + x.bandwidth() / 2)
+        .attr('cy', (d) => y(d[yKey]))
         .attr('r', 4)
-        .attr('fill', '#003366');
+        .attr('fill', '#003366')
+        .append('title')
+        .text((d) => `${xKey}: ${d[xKey]} \n${yKey}: ${d[yKey]}`);
     }
+
+    svg.call(
+      zoom()
+        .scaleExtent([1, 5])
+        .translateExtent([[0, 0], [width, height]])
+        .on('zoom', (event) => {
+          g.attr('transform', event.transform);
+        })
+    );
   };
 
   return (
     <div className="container">
       <h1 className="title">Big Data Visualizer</h1>
       <FileUploader onDataLoaded={handleDataLoaded} />
-
 
       <div className="api-fetch">
         <input
@@ -279,101 +293,116 @@ function App() {
         <>
           <div className="controls">
             <label>X:</label>
-            <select value={xKey} onChange={e => handleSettingsChange('x', e.target.value)}>
+            <select value={xKey} onChange={(e) => setXKey(e.target.value)}>
               <option value="">-- Select --</option>
-              {columns.map(col => (
+              {columns.map((col) => (
                 <option key={col}>{col}</option>
               ))}
             </select>
 
             <label>Y:</label>
-            <select value={yKey} onChange={e => handleSettingsChange('y', e.target.value)}>
+            <select value={yKey} onChange={(e) => setYKey(e.target.value)}>
               <option value="">-- Select --</option>
-              {columns.map(col => (
+              {columns.map((col) => (
                 <option key={col}>{col}</option>
               ))}
             </select>
 
             <label>Type:</label>
-            <select value={chartType} onChange={e => handleSettingsChange('type', e.target.value)}>
+            <select value={chartType} onChange={(e) => setChartType(e.target.value)}>
               <option value="bar">Bar</option>
               <option value="line">Line</option>
               <option value="scatter">Scatter</option>
             </select>
           </div>
 
-          <svg id="chart"></svg>
+          <div className="filter-slider">
+            <label>Show Top {maxItems} Items</label>
+            <input
+              type="range"
+              min="1"
+              max={data.length}
+              value={maxItems}
+              onChange={(e) => setMaxItems(Number(e.target.value))}
+            />
+          </div>
+
+          <svg id="chart" style={{ border: '2px dashed #3399ff', background: 'white' }}></svg>
+
+
 
           <div className="download-buttons">
-            <button onClick={downloadCleanedFile}>Download Cleaned File</button>
-            <button onClick={downloadChart}>Download Chart</button>
             <button onClick={fetchStats}>View Stats</button>
-            {stats && (
-    <button onClick={downloadStatsPDF}>📥 Download Stats (PDF)</button>
-  )}
+            <button onClick={downloadStatsPDF}>Download Stats PDF</button>
+            <button onClick={downloadChartAsPNG}>Download Chart as PNG</button>
+            <button onClick={downloadCleanedCSV}>Download Cleaned CSV</button>
+
 
           </div>
-          {stats && (
-  <div className="stats-box">
-    <h2>📈 Descriptive Statistics</h2>
-    <table className="stats-table">
-      <thead>
-        <tr>
-          <th>Metric</th>
-          {Object.keys(stats.mean).map((key) => (
-            <th key={key}>{key}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Mean</td>
-          {Object.values(stats.mean).map((val, i) => (
-            <td key={i}>{val}</td>
-          ))}
-        </tr>
-        <tr>
-          <td>Median</td>
-          {Object.values(stats.median).map((val, i) => (
-            <td key={i}>{val}</td>
-          ))}
-        </tr>
-        <tr>
-          <td>Standard Deviation</td>
-          {Object.values(stats.std_dev).map((val, i) => (
-            <td key={i}>{val}</td>
-          ))}
-        </tr>
-      </tbody>
-    </table>
 
-    <h3 style={{ marginTop: '20px' }}>📊 Correlation Matrix</h3>
-    <table className="stats-table">
-      <thead>
-        <tr>
-          <th></th>
-          {Object.keys(stats.correlation).map((key) => (
-            <th key={key}>{key}</th>
-          ))}
-          </tr>
-        </thead>
-        <tbody>
-          {Object.entries(stats.correlation).map(([rowKey, rowVals]) => (
-            <tr key={rowKey}>
-              <td>{rowKey}</td>
-              {Object.keys(stats.correlation).map((colKey) => (
-                <td key={colKey}>{rowVals[colKey]?.toFixed(2) ?? '-'}</td>
-              ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    )}
-  </>
-)}
-</div>
-);
+          {stats && (
+            <div className="stats-box">
+              <h2>📈 Descriptive Statistics</h2>
+              <table className="stats-table">
+                <thead>
+                  <tr>
+                    <th>Metric</th>
+                    {Object.keys(stats.mean).map((key) => (
+                      <th key={key}>{key}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Mean</td>
+                    {Object.values(stats.mean).map((val, i) => (
+                      <td key={i}>{val}</td>
+                    ))}
+                  </tr>
+                  <tr>
+                    <td>Median</td>
+                    {Object.values(stats.median).map((val, i) => (
+                      <td key={i}>{val}</td>
+                    ))}
+                  </tr>
+                  <tr>
+                    <td>Standard Deviation</td>
+                    {Object.values(stats.std_dev).map((val, i) => (
+                      <td key={i}>{val}</td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
+
+              <h3>📊 Correlation Matrix</h3>
+              <table className="stats-table">
+                <thead>
+                  <tr>
+                    <th></th>
+                    {Object.keys(stats.correlation).map((key) => (
+                      <th key={key}>{key}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(stats.correlation).map(([rowKey, rowVals]) => (
+                    <tr key={rowKey}>
+                      <td>{rowKey}</td>
+                      {Object.keys(stats.correlation).map((colKey) => (
+                        <td key={colKey}>
+                          {rowVals[colKey] !== undefined ? rowVals[colKey].toFixed(2) : '-'}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
 }
 
 export default App;

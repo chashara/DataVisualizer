@@ -241,3 +241,8 @@ input[type="file"] {
   background-color: #f0f8ff;
   color: #003366;
 }
+
+.tooltip {
+  font-size: 14px;
+  pointer-events: none;
+}
