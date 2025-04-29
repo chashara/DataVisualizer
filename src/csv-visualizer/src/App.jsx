@@ -185,14 +185,14 @@ function App() {
     img.onload = () => {
       canvas.width = img.width;
       canvas.height = img.height;
-      ctx.fillStyle = "white"; // white background for JPEG
+      ctx.fillStyle = "white";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, 0, 0);
       URL.revokeObjectURL(url);
 
       const jpegLink = document.createElement('a');
       jpegLink.download = 'chart.jpeg';
-      jpegLink.href = canvas.toDataURL('image/jpeg', 1.0); // 100% quality
+      jpegLink.href = canvas.toDataURL('image/jpeg', 1.0);
       jpegLink.click();
     };
     img.src = url;
@@ -217,7 +217,7 @@ function App() {
     img.onload = () => {
       canvas.width = img.width;
       canvas.height = img.height;
-      ctx.fillStyle = "white"; // white background
+      ctx.fillStyle = "white";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, 0, 0);
       URL.revokeObjectURL(url);
@@ -375,7 +375,7 @@ g.append('text')
               ))}
             </select>
 
-            <label>Type:</label>
+            <label>Chart Type:</label>
             <select value={chartType} onChange={(e) => setChartType(e.target.value)}>
               <option value="bar">Bar</option>
               <option value="line">Line</option>
@@ -412,7 +412,7 @@ g.append('text')
 
           {stats && (
             <div className="stats-box">
-              <h2>📈 Descriptive Statistics</h2>
+              <h2>Descriptive Statistics</h2>
               <table className="stats-table">
                 <thead>
                   <tr>
@@ -444,7 +444,7 @@ g.append('text')
                 </tbody>
               </table>
 
-              <h3>📊 Correlation Matrix</h3>
+              <h3>Correlation Matrix</h3>
               <table className="stats-table">
                 <thead>
                   <tr>
