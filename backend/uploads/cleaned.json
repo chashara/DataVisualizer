@@ -1,0 +1,47 @@
+[
+  {
+    "Age": 29,
+    "Department": "Engineering",
+    "EmployeeID": 1,
+    "ExperienceYears": 5,
+    "Name": "Alice",
+    "PerformanceScore": 8.5,
+    "Salary": 75000
+  },
+  {
+    "Age": 26,
+    "Department": "Support",
+    "EmployeeID": 4,
+    "ExperienceYears": 3,
+    "Name": "Diana",
+    "PerformanceScore": 6.9,
+    "Salary": 54000
+  },
+  {
+    "Age": 34,
+    "Department": "Marketing",
+    "EmployeeID": 2,
+    "ExperienceYears": 7,
+    "Name": "Bob",
+    "PerformanceScore": 7.3,
+    "Salary": 68000
+  },
+  {
+    "Age": 41,
+    "Department": "HR",
+    "EmployeeID": 3,
+    "ExperienceYears": 10,
+    "Name": "Charlie",
+    "PerformanceScore": 9.1,
+    "Salary": 62000
+  },
+  {
+    "Age": 38,
+    "Department": "Finance",
+    "EmployeeID": 5,
+    "ExperienceYears": 9,
+    "Name": "Ethan",
+    "PerformanceScore": 8.8,
+    "Salary": 87000
+  }
+]

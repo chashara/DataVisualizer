@@ -6,6 +6,8 @@ export default function FileUploader({ onDataLoaded }) {
     const file = e.target.files[0];
     if (!file) return;
 
+    const startUpload = performance.now();
+
     const formData = new FormData();
     formData.append('file', file);
 
@@ -22,14 +24,17 @@ export default function FileUploader({ onDataLoaded }) {
 
       if (file.name.endsWith('.json')) {
         try {
+          const parseStart = performance.now();
           const jsonData = JSON.parse(text);
+          const parseEnd = performance.now();
+          console.log(`JSON Upload + Parse Time: ${(parseEnd - startUpload).toFixed(2)} ms`);
           onDataLoaded(jsonData, file);
         } catch (error) {
           console.error("Error parsing JSON:", error);
           alert("The uploaded JSON file is invalid.");
         }
       } else {
-
+        const parseStart = performance.now();
         Papa.parse(text, {
           header: true,
           skipEmptyLines: true,
@@ -42,6 +47,8 @@ export default function FileUploader({ onDataLoaded }) {
               }
               return cleaned;
             });
+            const parseEnd = performance.now();
+            console.log(`CSV Upload + Parse Time: ${(parseEnd - startUpload).toFixed(2)} ms`);
             onDataLoaded(parsed, file);
           }
         });

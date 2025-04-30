@@ -21,6 +21,8 @@ function App() {
     renderChart();
   }, [data, xKey, yKey, chartType, maxItems]);
 
+
+
   const handleDataLoaded = (parsedData, file) => {
     if (!parsedData.length) return;
     setData(parsedData);
@@ -33,14 +35,23 @@ function App() {
 
   const handleApiFetch = async () => {
     if (!apiUrl) return alert('Please enter a valid API URL.');
+
+    const startTime = performance.now();
+
     try {
       const res = await fetch(apiUrl);
       if (!res.ok) throw new Error('Failed to fetch data from API.');
+
       const jsonData = await res.json();
+
+      const endTime = performance.now();
+      console.log(`API Fetch + Parse Time: ${(endTime - startTime).toFixed(2)} ms`);
+
       if (!Array.isArray(jsonData)) {
         alert('Expected an array of objects from the API.');
         return;
       }
+
       setRawFile({ name: 'api.json' });
       setData(jsonData);
       setColumns(Object.keys(jsonData[0]));
@@ -52,6 +63,7 @@ function App() {
       alert('Error fetching or parsing API data.');
     }
   };
+
 
   const fetchStats = async () => {
     if (!data.length) return alert('No data available.');
@@ -237,6 +249,8 @@ function App() {
   const renderChart = () => {
     if (!xKey || !yKey || data.length === 0) return;
 
+    const startRender = performance.now();
+
     const filteredData = data.slice(0, maxItems);
     const svg = select('#chart');
     svg.selectAll('*').remove();
@@ -338,6 +352,9 @@ g.append('text')
           g.attr('transform', event.transform);
         })
     );
+
+    const endRender = performance.now();
+  console.log(`Chart Render Time: ${(endRender - startRender).toFixed(2)} ms`);
   };
 
   return (
