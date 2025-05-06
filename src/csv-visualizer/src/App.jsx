@@ -52,9 +52,30 @@ function App() {
         return;
       }
 
+
+      const cleanedData = jsonData.map(row => {
+        const flatRow = {};
+        for (const key in row) {
+          const value = row[key];
+
+          if (typeof value === 'number') {
+
+            flatRow[key] = isFinite(value) ? value : null;
+          } else if (
+            typeof value === 'string' ||
+            typeof value === 'boolean' ||
+            value === null
+          ) {
+            flatRow[key] = value;
+          }
+
+        }
+        return flatRow;
+      });
+
       setRawFile({ name: 'api.json' });
-      setData(jsonData);
-      setColumns(Object.keys(jsonData[0]));
+      setData(cleanedData);
+      setColumns(Object.keys(cleanedData[0]));
       setXKey('');
       setYKey('');
       setStats(null);
@@ -67,23 +88,49 @@ function App() {
 
   const fetchStats = async () => {
     if (!data.length) return alert('No data available.');
+
+
+    const numericKeys = Object.keys(data[0]).filter(key => {
+      const value = data[0][key];
+      return typeof value === 'number' && isFinite(value);
+    });
+
+    if (!numericKeys.length) {
+      alert('No numeric columns available for statistical analysis.');
+      return;
+    }
+
+
+    const cleanedData = data.map(row => {
+      const cleanRow = {};
+      numericKeys.forEach(key => {
+        const value = row[key];
+        cleanRow[key] = typeof value === 'number' && isFinite(value) ? value : null;
+      });
+      return cleanRow;
+    });
+
     try {
       const res = await fetch('http://127.0.0.1:8000/descriptive-stats', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data }),
+        body: JSON.stringify({ data: cleanedData }),
       });
+
       const result = await res.json();
       if (result.error) {
         alert(result.error);
         return;
       }
+
       setStats(result);
     } catch (err) {
       console.error('Error fetching stats:', err);
       alert('Failed to load statistics.');
     }
   };
+
+
 
   const downloadCleanedCSV = () => {
     if (!data.length) {

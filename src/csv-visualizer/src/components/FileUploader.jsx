@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Papa from 'papaparse';
 
@@ -6,8 +7,15 @@ export default function FileUploader({ onDataLoaded }) {
     const file = e.target.files[0];
     if (!file) return;
 
-    const startUpload = performance.now();
 
+    const allowedTypes = ['.csv', '.json'];
+    const fileExtension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+    if (!allowedTypes.includes(fileExtension)) {
+      alert('Invalid file type. Please upload a .csv or .json file.');
+      return;
+    }
+
+    const startUpload = performance.now();
     const formData = new FormData();
     formData.append('file', file);
 
@@ -24,17 +32,14 @@ export default function FileUploader({ onDataLoaded }) {
 
       if (file.name.endsWith('.json')) {
         try {
-          const parseStart = performance.now();
           const jsonData = JSON.parse(text);
-          const parseEnd = performance.now();
-          console.log(`JSON Upload + Parse Time: ${(parseEnd - startUpload).toFixed(2)} ms`);
+          console.log(`JSON Upload + Parse Time: ${(performance.now() - startUpload).toFixed(2)} ms`);
           onDataLoaded(jsonData, file);
         } catch (error) {
           console.error("Error parsing JSON:", error);
           alert("The uploaded JSON file is invalid.");
         }
       } else {
-        const parseStart = performance.now();
         Papa.parse(text, {
           header: true,
           skipEmptyLines: true,
@@ -47,8 +52,7 @@ export default function FileUploader({ onDataLoaded }) {
               }
               return cleaned;
             });
-            const parseEnd = performance.now();
-            console.log(`CSV Upload + Parse Time: ${(parseEnd - startUpload).toFixed(2)} ms`);
+            console.log(`CSV Upload + Parse Time: ${(performance.now() - startUpload).toFixed(2)} ms`);
             onDataLoaded(parsed, file);
           }
         });
@@ -68,8 +72,20 @@ export default function FileUploader({ onDataLoaded }) {
         accept=".csv,.json"
         onChange={handleFileChange}
         style={{ display: 'none' }}
+        aria-label="Upload CSV or JSON file"
       />
-      <label htmlFor="file" className="upload-button">
+      <label
+        htmlFor="file"
+        className="upload-button"
+        role="button"
+        tabIndex={0}
+        aria-label="Click or press Enter to upload a CSV or JSON file"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            document.getElementById('file').click();
+          }
+        }}
+      >
         Upload CSV or JSON
       </label>
     </div>

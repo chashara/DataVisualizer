@@ -1,0 +1,11 @@
+Name,Age,Salary,Department,ExperienceYears,PerformanceScore
+Alice,29,70000,Engineering,5,8.5
+Bob,34,30000,Marketing,7,9
+Charlie,23,62000,HR,10,9.1
+Diana,26,54000,HR,3,6.9
+Ethan,38,87000,Finance,9,8.8
+Faythe,31,69000,Engineering,3,7.2
+Grace,27,65000,Marketing,4,10
+Heidi,30,30000,HR,6,8.3
+Ivan,,75000,Support,8,9
+Judy,28,68000,Finance,,7.5
